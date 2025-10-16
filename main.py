@@ -35,8 +35,8 @@ class YellowPagesScraper:
 
             logging.info(f"Page {page_num}: {url}")
 
-            # Navigate
-            await page.goto(url, wait_until='domcontentloaded', timeout=30000)
+            # Navigate with increased timeout
+            await page.goto(url, wait_until='networkidle', timeout=60000)
 
             # Handle Cloudflare
             title = await page.title()
@@ -166,7 +166,7 @@ class YellowPagesScraper:
             await page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
 
             url = f"https://www.yellowpages.com/search?{urlencode({'search_terms': keyword, 'geo_location_terms': place, 'page': 1})}"
-            await page.goto(url, wait_until='domcontentloaded', timeout=30000)
+            await page.goto(url, wait_until='networkidle', timeout=60000)
             await asyncio.sleep(random.uniform(1, 2))
 
             # Extract total results and calculate pages
@@ -273,14 +273,13 @@ async def main():
                 ]
             )
 
-            # Use Apify's proxy configuration
-            proxy_config = await Actor.create_proxy_configuration()
-            proxy_url = await proxy_config.new_url() if proxy_config else None
+            # Don't use proxy for now - Yellow Pages might be blocking Apify proxies
+            # proxy_config = await Actor.create_proxy_configuration()
+            # proxy_url = await proxy_config.new_url() if proxy_config else None
 
             context = await browser.new_context(
                 viewport={'width': 1920, 'height': 1080},
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                proxy={'server': proxy_url} if proxy_url else None
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             )
 
             try:
