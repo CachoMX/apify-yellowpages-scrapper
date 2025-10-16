@@ -55,8 +55,14 @@ class YellowPagesScraper:
                     logging.error(f"Page {page_num}: Cloudflare timeout")
                     return []
 
-            # Wait for content
-            await asyncio.sleep(random.uniform(1, 2))
+            # Wait for content to load
+            await asyncio.sleep(random.uniform(2, 4))
+
+            # Try to wait for results to appear
+            try:
+                await page.wait_for_selector('.result, [data-testid="organic-listing"]', timeout=10000)
+            except:
+                logging.warning(f"Page {page_num}: Timeout waiting for results selector")
 
             # Extract listings
             listings = await page.evaluate(f"""
@@ -66,10 +72,16 @@ class YellowPagesScraper:
 
                     for (const selector of selectors) {{
                         results = document.querySelectorAll(selector);
+                        console.log(`Trying selector: ${{selector}}, found: ${{results.length}}`);
                         if (results.length > 0) break;
                     }}
 
-                    if (results.length === 0) return [];
+                    if (results.length === 0) {{
+                        console.log('No results found with any selector');
+                        console.log('Body length:', document.body.innerText.length);
+                        console.log('Title:', document.title);
+                        return [];
+                    }}
 
                     const listings = [];
 
