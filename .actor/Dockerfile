@@ -11,5 +11,5 @@ RUN playwright install chromium && playwright install-deps chromium
 # Copy source code
 COPY . ./
 
-# Run the Actor
-CMD ["python", "main.py"]
+# Run the Actor (using Crawlee version for better Cloudflare handling)
+CMD ["python", "main_crawlee.py"]
