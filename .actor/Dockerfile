@@ -11,5 +11,5 @@ RUN playwright install chromium && playwright install-deps chromium
 # Copy source code
 COPY . ./
 
-# Run the Actor (using HttpCrawler with auto-proxies)
-CMD ["python", "main_http_crawler.py"]
+# Run the Actor (using simple requests library)
+CMD ["python", "main_requests.py"]
