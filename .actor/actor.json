@@ -1,0 +1,65 @@
+{
+  "actorSpecification": 1,
+  "name": "yellow-pages-scraper",
+  "title": "Yellow Pages Scraper",
+  "description": "Fast and intelligent Yellow Pages scraper with automatic page detection. Scrapes business listings including name, phone, address, website, and categories.",
+  "version": "1.0.0",
+  "meta": {
+    "templateId": "python-playwright"
+  },
+  "input": "./input_schema.json",
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "views": {
+        "overview": {
+          "title": "Overview",
+          "transformation": {
+            "fields": [
+              "name",
+              "phone",
+              "address",
+              "website",
+              "category",
+              "keyword",
+              "location"
+            ]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "name": {
+                "label": "Business Name",
+                "format": "text"
+              },
+              "phone": {
+                "label": "Phone",
+                "format": "text"
+              },
+              "address": {
+                "label": "Address",
+                "format": "text"
+              },
+              "website": {
+                "label": "Website",
+                "format": "link"
+              },
+              "category": {
+                "label": "Category",
+                "format": "text"
+              },
+              "keyword": {
+                "label": "Search Keyword",
+                "format": "text"
+              },
+              "location": {
+                "label": "Location",
+                "format": "text"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

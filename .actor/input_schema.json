@@ -1,0 +1,50 @@
+{
+  "title": "Yellow Pages Scraper Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "keywords": {
+      "title": "Keywords",
+      "type": "array",
+      "description": "List of business keywords to search (e.g., 'Real Estate', 'Plumber', 'Lawyer')",
+      "editor": "stringList",
+      "placeholderValue": ["Real Estate", "Plumber"],
+      "default": ["Real Estate"]
+    },
+    "locations": {
+      "title": "Locations",
+      "type": "array",
+      "description": "List of locations to search (state abbreviations or cities, e.g., 'CA', 'New York, NY')",
+      "editor": "stringList",
+      "placeholderValue": ["CA", "WA", "NY"],
+      "default": ["CA"]
+    },
+    "timezone": {
+      "title": "Timezone",
+      "type": "string",
+      "description": "Timezone for the results (PST, EST, CST, MST)",
+      "editor": "select",
+      "enum": ["PST", "EST", "CST", "MST"],
+      "default": "PST"
+    },
+    "maxPages": {
+      "title": "Max Pages per Search",
+      "type": "integer",
+      "description": "Maximum number of pages to scrape per keyword/location combination (30 results per page)",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 50,
+      "unit": "pages"
+    },
+    "maxConcurrency": {
+      "title": "Max Concurrency",
+      "type": "integer",
+      "description": "Number of pages to scrape in parallel (higher = faster but more resources)",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 20,
+      "unit": "concurrent pages"
+    }
+  },
+  "required": ["keywords", "locations"]
+}

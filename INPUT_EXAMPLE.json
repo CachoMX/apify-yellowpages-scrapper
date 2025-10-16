@@ -1,0 +1,17 @@
+{
+  "keywords": [
+    "Real Estate",
+    "Plumber",
+    "Electrician",
+    "Lawyer",
+    "Dentist"
+  ],
+  "locations": [
+    "CA",
+    "WA",
+    "NY"
+  ],
+  "timezone": "PST",
+  "maxPages": 50,
+  "maxConcurrency": 20
+}
