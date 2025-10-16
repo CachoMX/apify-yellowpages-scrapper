@@ -63,6 +63,12 @@ class YellowPagesScraper:
                 await page.wait_for_selector('.result, [data-testid="organic-listing"]', timeout=10000)
             except:
                 logging.warning(f"Page {page_num}: Timeout waiting for results selector")
+                # Debug: Take screenshot and log HTML
+                screenshot = await page.screenshot()
+                await Actor.set_value(f'screenshot-page-{page_num}', screenshot, content_type='image/png')
+                html_content = await page.content()
+                logging.error(f"Page {page_num} HTML preview: {html_content[:500]}")
+                logging.error(f"Page {page_num} title: {await page.title()}")
 
             # Extract listings
             listings = await page.evaluate(f"""
