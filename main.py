@@ -184,8 +184,21 @@ class YellowPagesScraper:
             await page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
 
             url = f"https://www.yellowpages.com/search?{urlencode({'search_terms': keyword, 'geo_location_terms': place, 'page': 1})}"
+            logging.info(f"Detection: Loading {url}")
             await page.goto(url, wait_until='networkidle', timeout=60000)
-            await asyncio.sleep(random.uniform(1, 2))
+            await asyncio.sleep(random.uniform(2, 4))
+
+            # Debug: Save screenshot and HTML
+            title = await page.title()
+            logging.info(f"Detection: Page title: {title}")
+            screenshot = await page.screenshot()
+            await Actor.set_value('detection-screenshot', screenshot, content_type='image/png')
+            html = await page.content()
+            logging.info(f"Detection: HTML length: {len(html)}")
+            if 'cloudflare' in html.lower() or 'blocked' in title.lower():
+                logging.error(f"Detection: CLOUDFLARE DETECTED!")
+                await Actor.set_value('detection-html', html, content_type='text/html')
+                return 0
 
             # Extract total results and calculate pages
             total_pages = await page.evaluate("""
@@ -298,6 +311,7 @@ async def main():
 
             # Create new proxy URL for Playwright
             proxy_url = await proxy_config.new_url() if proxy_config else None
+            Actor.log.info(f"Using proxy: {proxy_url}")
 
             context = await browser.new_context(
                 viewport={'width': 1920, 'height': 1080},
