@@ -134,8 +134,16 @@ async def main():
         # Get proxy configuration from input
         proxy_configuration = actor_input.get('proxyConfiguration', {})
 
-        # Create proxy config - Apify will auto-configure based on input
-        if proxy_configuration.get('useApifyProxy'):
+        # Check if using custom proxies
+        proxy_urls = proxy_configuration.get('proxyUrls', [])
+
+        if proxy_urls:
+            # User provided their own proxies (e.g., Webshare)
+            Actor.log.info(f"Using {len(proxy_urls)} custom proxies")
+            # Use random proxy from the list
+            proxy_url = random.choice(proxy_urls)
+            Actor.log.info(f"Selected proxy: {proxy_url.split('@')[0]}@...")
+        elif proxy_configuration.get('useApifyProxy'):
             # User enabled Apify proxy in input
             proxy_config = await Actor.create_proxy_configuration()
             if proxy_config:
