@@ -63,12 +63,13 @@ class YellowPagesScraper:
                 await page.wait_for_selector('.result, [data-testid="organic-listing"]', timeout=10000)
             except:
                 logging.warning(f"Page {page_num}: Timeout waiting for results selector")
-                # Debug: Take screenshot and log HTML
-                screenshot = await page.screenshot()
-                await Actor.set_value(f'screenshot-page-{page_num}', screenshot, content_type='image/png')
+                # Debug: Log what we got (no screenshot to avoid timeout)
                 html_content = await page.content()
-                logging.error(f"Page {page_num} HTML preview: {html_content[:500]}")
-                logging.error(f"Page {page_num} title: {await page.title()}")
+                page_title = await page.title()
+                logging.error(f"Page {page_num} title: '{page_title}'")
+                logging.error(f"Page {page_num} HTML preview: {html_content[:300]}")
+                if page_num == 1:
+                    await Actor.set_value('page-1-html', html_content[:3000], content_type='text/plain')
 
             # Extract listings
             listings = await page.evaluate(f"""
@@ -188,16 +189,22 @@ class YellowPagesScraper:
             await page.goto(url, wait_until='networkidle', timeout=60000)
             await asyncio.sleep(random.uniform(2, 4))
 
-            # Debug: Save screenshot and HTML
+            # Debug: Check what we got
             title = await page.title()
-            logging.info(f"Detection: Page title: {title}")
-            screenshot = await page.screenshot()
-            await Actor.set_value('detection-screenshot', screenshot, content_type='image/png')
             html = await page.content()
+            logging.info(f"Detection: Page title: '{title}'")
             logging.info(f"Detection: HTML length: {len(html)}")
-            if 'cloudflare' in html.lower() or 'blocked' in title.lower():
-                logging.error(f"Detection: CLOUDFLARE DETECTED!")
-                await Actor.set_value('detection-html', html, content_type='text/html')
+
+            # Check for blocking
+            if 'cloudflare' in html.lower() or 'blocked' in html.lower() or not title or title == '':
+                logging.error(f"Detection: PAGE BLOCKED OR EMPTY!")
+                await Actor.set_value('blocked-html', html[:5000], content_type='text/plain')
+                # Try to take screenshot anyway (with short timeout)
+                try:
+                    screenshot = await page.screenshot(timeout=5000)
+                    await Actor.set_value('blocked-screenshot', screenshot, content_type='image/png')
+                except:
+                    pass
                 return 0
 
             # Extract total results and calculate pages
