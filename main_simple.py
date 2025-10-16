@@ -12,7 +12,7 @@ from urllib.parse import urlencode, quote_plus
 from bs4 import BeautifulSoup
 import re
 
-async def scrape_page(session, keyword, location, page_num, timezone):
+async def scrape_page(session, keyword, location, page_num, timezone, proxy_url=None):
     """Scrape a single page using simple HTTP"""
     url = f"https://www.yellowpages.com/search?search_terms={quote_plus(keyword)}&geo_location_terms={quote_plus(location)}&page={page_num}"
 
@@ -26,7 +26,11 @@ async def scrape_page(session, keyword, location, page_num, timezone):
     }
 
     try:
-        async with session.get(url, headers=headers, timeout=30) as response:
+        request_kwargs = {'headers': headers, 'timeout': 30}
+        if proxy_url:
+            request_kwargs['proxy'] = proxy_url
+
+        async with session.get(url, **request_kwargs) as response:
             if response.status != 200:
                 Actor.log.error(f"Page {page_num}: HTTP {response.status}")
                 return []
@@ -127,14 +131,30 @@ async def main():
 
         Actor.log.info(f"Starting simple HTTP scraper: {len(keywords)} keywords, {len(locations)} locations")
 
-        # Create HTTP session
-        async with aiohttp.ClientSession() as session:
+        # Get Apify proxy URL (residential)
+        proxy_config = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
+        proxy_url = await proxy_config.new_url() if proxy_config else None
+        Actor.log.info(f"Using proxy: {proxy_url}")
+
+        # Create HTTP session with proxy
+        connector = None
+        if proxy_url:
+            # Parse proxy URL for aiohttp
+            connector = aiohttp.TCPConnector()
+
+        session_kwargs = {}
+        if proxy_url:
+            session_kwargs['connector'] = connector
+            # aiohttp wants proxy as a simple string
+            session_kwargs['trust_env'] = True
+
+        async with aiohttp.ClientSession(**session_kwargs) as session:
             for location in locations:
                 for keyword in keywords:
                     Actor.log.info(f"Scraping '{keyword}' in {location}")
 
                     # Scrape first page to detect total pages
-                    first_page_listings = await scrape_page(session, keyword, location, 1, timezone)
+                    first_page_listings = await scrape_page(session, keyword, location, 1, timezone, proxy_url)
 
                     if first_page_listings:
                         await Actor.push_data(first_page_listings)
