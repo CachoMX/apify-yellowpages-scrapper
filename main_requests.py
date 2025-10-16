@@ -131,10 +131,17 @@ async def main():
 
         Actor.log.info(f"Starting requests scraper: {len(keywords)} keywords, {len(locations)} locations")
 
-        # Get Apify proxy
-        proxy_config = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
-        proxy_url = await proxy_config.new_url() if proxy_config else None
-        Actor.log.info(f"Using proxy: {proxy_url}")
+        # Get proxy configuration from input
+        proxy_configuration = actor_input.get('proxyConfiguration')
+        proxy_config = await Actor.create_proxy_configuration(actor_proxy_configuration=proxy_configuration)
+
+        if proxy_config:
+            # Get new proxy for each request (rotate)
+            proxy_url = await proxy_config.new_url()
+            Actor.log.info(f"Using proxy: {proxy_url}")
+        else:
+            proxy_url = None
+            Actor.log.warning("No proxy configured - running without proxy")
 
         for location in locations:
             for keyword in keywords:

@@ -42,6 +42,13 @@
       "maximum": 50,
       "default": 20,
       "unit": "concurrent pages"
+    },
+    "proxyConfiguration": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "description": "Select proxies to use for requests. Residential proxies are recommended for best results.",
+      "editor": "proxy",
+      "default": {"useApifyProxy": true}
     }
   },
   "required": ["keywords", "locations"]
