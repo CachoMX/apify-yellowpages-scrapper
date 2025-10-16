@@ -315,3 +315,6 @@ async def main():
                 await browser.close()
 
         Actor.log.info("Scraping completed!")
+
+# Run the Actor
+asyncio.run(main())
