@@ -291,13 +291,18 @@ async def main():
                 ]
             )
 
-            # Don't use proxy for now - Yellow Pages might be blocking Apify proxies
-            # proxy_config = await Actor.create_proxy_configuration()
-            # proxy_url = await proxy_config.new_url() if proxy_config else None
+            # Use Apify's residential proxies to bypass Cloudflare
+            proxy_config = await Actor.create_proxy_configuration(
+                groups=['RESIDENTIAL']  # Use residential proxies instead of datacenter
+            )
+
+            # Create new proxy for each context
+            proxy_info = await proxy_config.new_proxy_info() if proxy_config else None
 
             context = await browser.new_context(
                 viewport={'width': 1920, 'height': 1080},
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                proxy=proxy_info
             )
 
             try:
