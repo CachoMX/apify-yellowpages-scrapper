@@ -8,7 +8,6 @@
       "type": "array",
       "description": "List of business keywords to search (e.g., 'Real Estate', 'Plumber', 'Lawyer')",
       "editor": "stringList",
-      "placeholderValue": ["Real Estate", "Plumber"],
       "default": ["Real Estate"]
     },
     "locations": {
@@ -16,7 +15,6 @@
       "type": "array",
       "description": "List of locations to search (state abbreviations or cities, e.g., 'CA', 'New York, NY')",
       "editor": "stringList",
-      "placeholderValue": ["CA", "WA", "NY"],
       "default": ["CA"]
     },
     "timezone": {
